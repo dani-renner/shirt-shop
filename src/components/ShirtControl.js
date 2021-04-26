@@ -3,6 +3,8 @@ import NewShirtForm from "./NewShirtForm";
 import ShirtList from "./ShirtList";
 import ShirtDetail from "./ShirtDetail";
 import EditShirtForm from "./EditShirtForm";
+import PropTypes from "prop-types";
+import { connect } from 'react-redux';
 
 
 class ShirtControl extends React.Component {
@@ -10,7 +12,7 @@ class ShirtControl extends React.Component {
   constructor(props){
     super(props);
     this.state={
-      masterShirtList: [],
+      // masterShirtList: [],
       formVisibleOnPage: false,
       selectedShirt: null,
       editing: false
@@ -31,14 +33,31 @@ class ShirtControl extends React.Component {
     }
   }
 
+  // handleEditingShirt = (shirtToEdit) => {
+  //   const editedMasterShirtList = this.state.masterShirtList
+  //   .filter(shirt => shirt.id !== this.state.selectedShirt.id)
+  //   .concat(shirtToEdit);
+  //   this.setState({
+  //     masterShirtList: editedMasterShirtList,
+  //     editing: false,
+  //     selectedShirt: null
+  //   });
+  // }
   handleEditingShirt = (shirtToEdit) => {
-    const editedMasterShirtList = this.state.masterShirtList
-    .filter(shirt => shirt.id !== this.state.selectedShirt.id)
-    .concat(shirtToEdit);
+    const { dispatch } = this.props;
+    const { id, name, description, quantity, price } = shirtToEdit;
+    const action = {
+      type: 'EDIT_SHIRT',
+      id: id,
+      name: name,
+      description: description,
+      quantity: quantity,
+      price: price
+    }
+    dispatch(action);
     this.setState({
-      masterShirtList: editedMasterShirtList,
       editing: false,
-      selectedShirt: null
+      selectedTicket: null
     });
   }
 
@@ -51,7 +70,7 @@ class ShirtControl extends React.Component {
 
     const editedMasterShirtList = this.state.masterShirtList
     .filter(shirt => shirt.id !== this.state.selectedShirt.id)
-    .concat(editedShirt);
+    .concat(shirt);
     this.setState({
       masterShirtList: editedMasterShirtList,
       // editing: false,
@@ -68,22 +87,47 @@ class ShirtControl extends React.Component {
     this.setState({editing: true});
   }
 
-  handleDeletingShirt = (id) => {
-    const newMasterShirtList = this.state.masterShirtList.filter(shirt => shirt.id !== id);
-    this.setState({
-      masterShirtList: newMasterShirtList,
-      selectedShirt: null
-    });
+  // handleDeletingShirt = (id) => {
+  //   const newMasterShirtList = this.state.masterShirtList.filter(shirt => shirt.id !== id);
+  //   this.setState({
+  //     masterShirtList: newMasterShirtList,
+  //     selectedShirt: null
+  //   });
+  // }
+  
+  handleDeletingShirt = id => {
+    const { dispatch } = this.props;
+    const action = {
+      type: 'DELETE_TICKET',
+      id: id
+    }
+    dispatch(action);
+    this.setState({selectedShirt: null});
   }
 
-  handleAddingNewShirt = (newShirt) => {
-    const newMasterShirtList = this.state.masterShirtList.concat(newShirt);
-    this.setState({masterShirtList: newMasterShirtList, formVisibleOnPage: false});
+  // handleAddingNewShirt = (newShirt) => {
+  //   const newMasterShirtList = this.state.masterShirtList.concat(newShirt);
+  //   this.setState({masterShirtList: newMasterShirtList, formVisibleOnPage: false});
+  // }
+
+  handleAddingNewShirt = newShirt => {
+    const { dispatch } = this.props;
+    const { name, description, quantity, price, id } = newShirt;
+    const action = {
+      type: 'ADD_SHIRT',
+      id: id,
+      name: name,
+      description: description,
+      quantity: quantity,
+      price: price
+    }
+    dispatch(action);
+    this.setState({formVisibleOnPage: false});
   }
 
   handleChangingSelectedShirt = (id) => {
-    const selectedShirt = this.state.masterShirtList.filter(shirt => shirt.id === id)[0];
-    this.setState({selectedShirt: selectedShirt})
+    const selectedShirt = this.props.masterShirtList[id];
+    this.setState({selectedShirt: selectedShirt});
   }
 
   render() {
@@ -100,7 +144,7 @@ class ShirtControl extends React.Component {
       buttonText="Back to All Shirts"
     }
       else {
-      currentlyVisibleState = <ShirtList shirtList={this.state.masterShirtList} onShirtSelection={this.handleChangingSelectedShirt} />;
+      currentlyVisibleState = <ShirtList shirtList={this.props.masterShirtList} onShirtSelection={this.handleChangingSelectedShirt} />;
       buttonText= "Add a new shirt";
     }
 
@@ -113,5 +157,14 @@ class ShirtControl extends React.Component {
   }
 
 }
+ShirtControl.propTypes = {
+  masterShirtList: PropTypes.object
+}
+const mapStateToProps = state => {
+  return {
+    masterShirtList: state
+  }
+}
+ShirtControl = connect(mapStateToProps)(ShirtControl);
 
 export default ShirtControl;

@@ -1,14 +1,14 @@
 import React from 'react';
 import Shirt from "./Shirt";
+import PropTypes from "prop-types";
 
 function ShirtList(props){
   return(
     <React.Fragment>
       <h4>shirt list</h4>
-      {props.shirtList.map((shirt)=>
+      {Object.values(props.shirtList).map((shirt)=>
         <Shirt
         whenShirtClicked={props.onShirtSelection}
-
         name={shirt.name}
         description={shirt.description}
         quantity={shirt.quantity}
@@ -21,7 +21,10 @@ function ShirtList(props){
   );
 }
 
-
+ShirtList.propTypes = {
+  shirtList: PropTypes.object,
+  onShirtSelection: PropTypes.func
+};
 
 
 export default ShirtList;
